@@ -1,10 +1,16 @@
 #include<EEPROM.h>
 
+typedef struct data  // data to store in EEPROM
+{
+  float capacity;
+} Data;
+
+Data data;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  //EEPROM.read(address);
-  //EEPROM.write(address, value);  // create a procedure to recover the previous state
+  EEPROM.get(0, data);  // recovers the previous state
 }
 
 void loop() {
