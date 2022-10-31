@@ -28,17 +28,23 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   if (Serial.available() > 0) {
-    String data = Serial.readStringUntil('\n');
-    Serial.print("You sent me: ");
-    Serial.println(data);
+    String msg = Serial.readStringUntil('\n');  // Coms 
+    /*Serial.print("You sent me: ");
+    Serial.println(msg);*/
+
+    if (msg == "nivel"){
+      Serial.println(((data.max_level + data.depth) - measure()) * 100 / data.depth);
+    }
   }
 
-  float distance = measure();
-  if (distance > data.max_level + data.depth / 2) {
-    digitalWrite(VALVE_PIN, HIGH);
-  }
-  else if (distance <= data.max_level) {
-    digitalWrite(VALVE_PIN, LOW);
+  if (data.autofill) {  
+    float distance = measure();
+    if (distance > data.max_level + data.depth / 2) {
+      digitalWrite(VALVE_PIN, HIGH);
+    }
+    else if (distance <= data.max_level) {
+      digitalWrite(VALVE_PIN, LOW);
+    }
   }
 }
 
