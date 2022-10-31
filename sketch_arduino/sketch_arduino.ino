@@ -1,4 +1,5 @@
 #include<EEPROM.h>
+#include<string.h>
 
 #define TRIG 8
 #define ECHO 9
@@ -8,10 +9,10 @@
 
 typedef struct data  // data to store in EEPROM
 {
-  float capacity;
-  float depth;
-  float max_level;
-  bool autofill;
+  float depth;  // config
+  float max_level;  // config
+  bool autofill;  // config
+  bool filling;
 } Data;
 
 Data data;
@@ -39,16 +40,34 @@ void loop() {
       Serial.print(((data.max_level + data.depth) - measure()) * 100 / data.depth);
       Serial.println("%");
     }
+    else if (msg = "estado de bomba") {
+      Serial.println(data.filling);
+    }
+    else if (msg = "autofill") {
+      Serial.println(data.autofill);
+    }
+    else if (msg = "profundidad") {
+      Serial.println(data.depth);
+    }
+    else if (msg = "nivel maximo") {
+      Serial.println(data.max_level);
+    }
+    else if (msg = "set") {
+      Serial.println("Setting");
+    }
+    
   }
 
   if (data.autofill) {  
     float distance = measure();
     if (distance > data.max_level + data.depth / 2) {
       digitalWrite(VALVE_PIN, HIGH);
+      data.filling = true;
      
     }
     else if (distance <= data.max_level) {
       digitalWrite(VALVE_PIN, LOW);
+      data.filling = false;
     }
   }
 }
