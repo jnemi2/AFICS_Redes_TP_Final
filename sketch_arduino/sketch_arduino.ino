@@ -4,9 +4,14 @@
 #define ECHO 9
 #define VALVE_PIN A5
 
+#define N_SAMPLES 5
+
 typedef struct data  // data to store in EEPROM
 {
   float capacity;
+  float depth;
+  float max_level;
+  bool autofill;
 } Data;
 
 Data data;
@@ -27,8 +32,25 @@ void loop() {
     Serial.print("You sent me: ");
     Serial.println(data);
   }
+
+  float distance = measure();
+  if (distance > data.max_level + data.depth / 2) {
+    digitalWrite(VALVE_PIN, HIGH);
+  }
+  else if (distance <= data.max_level) {
+    digitalWrite(VALVE_PIN, LOW);
+  }
 }
 
+float measure() {
+  float distance = 0;
+  for (int i = 0; i < N_SAMPLES; i++){
+    distance += getDistance();
+    delay(10);
+  }
+  distance = distance / N_SAMPLES;
+  return distance;
+}
 
 float getDistance() {
   float echoTime;
