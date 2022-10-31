@@ -16,6 +16,7 @@ typedef struct data  // data to store in EEPROM
 
 Data data;
 
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
@@ -23,6 +24,8 @@ void setup() {
   pinMode(ECHO, INPUT);
   pinMode(VALVE_PIN, OUTPUT);
   EEPROM.get(0, data);  // recovers the previous state
+  data.depth = 35;
+  data.max_level = 3;
 }
 
 void loop() {
@@ -33,7 +36,8 @@ void loop() {
     Serial.println(msg);*/
 
     if (msg == "nivel"){
-      Serial.println(((data.max_level + data.depth) - measure()) * 100 / data.depth);
+      Serial.print(((data.max_level + data.depth) - measure()) * 100 / data.depth);
+      Serial.println("%");
     }
   }
 
@@ -41,6 +45,7 @@ void loop() {
     float distance = measure();
     if (distance > data.max_level + data.depth / 2) {
       digitalWrite(VALVE_PIN, HIGH);
+     
     }
     else if (distance <= data.max_level) {
       digitalWrite(VALVE_PIN, LOW);
