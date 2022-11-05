@@ -35,47 +35,48 @@ void loop() {
     /*Serial.print("You sent me: ");
     Serial.println(msg);*/
 
-    String param = msg.substring(4, 4);
-    if (msg.substring(0, 3) = "get") {
-      if (param == "levl"){  // msg = "get levl"
-        Serial.print(((data.max_level + data.depth) - measure()) * 100 / data.depth);
-        Serial.println("%");
-      }
-      else if (param == "stat") {  // msg = "get stat"
-        Serial.println(data.filling);
-      }
-      else if (param == "atfl") {  // msg = "get atfl"
-        Serial.println(data.autofill);
-      }
-      else if (param == "dept") {  // msg = "get dept"
-        Serial.println(data.depth);
-      }
-      else if (param == "Mlvl") {  // msg = "get Mlvl"
-        Serial.println(data.max_level);
-      }
+    Serial.println(msg);
+    if (msg == "get levl"){  // msg = "get levl"
+      Serial.print((((data.max_level + data.depth) - measure()) * 100 / data.depth));
+      Serial.println("%");
     }
-    else if (msg.substring(0, 3) == "set") {
-      if (param == "atfl") {
-        String val = msg.substring(9, 1);
-        data.autofill = (val == "1");  // msg = "set atfl 1" : true | msg = "set atfl 0" : false
-        if (val == "0")
-          data.autofill = false;
-        else if (val == "1")
-          data.autofill = true;  
-      }
-      else if (param == "dept") {  // msg = "set dept x"
-        String val = msg.substring(9, msg.length() - 9);
-        float newDepth = val.toFloat();
-        if (newDepth != 0.0)
-          data.depth = newDepth;
-      }
-      else if (param == "Mlvl") {  // msg = "set Mlvl x"
-        String val = msg.substring(9, msg.length() - 9);
-        float newDepth = val.toFloat();
-        if (newDepth != 0.0)
-          data.depth = newDepth;
-      }
+    else if (msg == "get stat") {  // msg = "get stat"
+      Serial.println((data.filling));
+    }
+    else if (msg == "get atfl") {  // msg = "get atfl"
+      Serial.println((data.autofill));
+    }
+    else if (msg == "get dept") {  // msg = "get dept"
+      Serial.println((data.depth));
+    }
+    else if (msg == "get Mlvl") {  // msg = "get Mlvl"
+      Serial.println((data.max_level));
+    }
+    else if (msg == "set atfl 1") {
+      data.autofill = true;  // msg = "set atfl 1" : true | msg = "set atfl 0" : false
+      EEPROM.put(0, data); 
+    } else if (msg == "set atfl 0") {
+      data.autofill = false;
       EEPROM.put(0, data);
+    }
+    else if (msg.substring(0,8) == "set dept") {  // msg = "set dept x"
+      String val = msg.substring(8, msg.length() - 1);
+      float newDepth = val.toFloat();
+      if (newDepth != 0.0){
+        data.depth = newDepth;
+        EEPROM.put(0, data);
+      }
+      Serial.println(val);
+      Serial.println(newDepth);
+    }
+    else if (msg.substring(0,8) == "set Mlvl") {  // msg = "set Mlvl x"
+      String val = msg.substring(8, msg.length() - 1);
+      float max_lvl = val.toFloat();
+      if (max_lvl != 0.0){
+        data.max_level = max_lvl;
+        EEPROM.put(0, data);
+      }
+      Serial.println(max_lvl);
     }
     
   }
