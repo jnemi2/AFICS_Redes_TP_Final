@@ -1,17 +1,111 @@
 #!/usr/bin/env python3
 import serial
-import time
-import cv2 as cv
+
+
+import tkinter as tk
+
 
 if __name__ == '__main__':
 
+    update_water_level = True
+    port_busy = False
+
+    # GUI
+    ws = tk.Tk()
+    ws.title('Tanque')
+    ws.config(bg='#0EBAD1')
+    ws.geometry('400x300')
+
+    label_water_level = tk.Label(
+        ws,
+        bg='#0EBAD1',
+        font=18
+    )
+    label_water_level.pack(expand=True)
+
+    label_depth = tk.Label(
+        ws,
+        bg='#0EBAD1',
+        font=18
+    )
+    label_depth.pack(expand=True)
+
+    def get_levl_clicked():
+        global port_busy
+        if not port_busy:
+            port_busy = True
+            ser.write(b"get levl\n")
+            label_water_level.config(text="Carga: " + ser.readline().decode('utf-8').rstrip())
+            port_busy = False
+
+    def toggle_get_water_level():
+        global update_water_level
+        if update_water_level:
+            update_water_level = False
+            btn_toggle_get_water_level['text'] = 'Lectura de Carga OFF'
+        else:
+            update_water_level = True
+            btn_toggle_get_water_level['text'] = 'Lectura de Carga ON'
+
+    def toggle_autofill():
+        global port_busy
+        if not port_busy:
+            port_busy = True
+            ser.write(b"get atfl\n")
+            val = ser.readline().decode('utf-8').rstrip()
+            if "1" in val:
+                ser.write(b"set atfl 0")
+                btn_toggle_autofill['text'] = "Llenado automatico " + "OFF"
+            elif "0" in val:
+                ser.write(b"set atfl 1")
+                btn_toggle_autofill['text'] = "Llenado automatico " + "ON"
+            port_busy = False
+
+
+    btn_toggle_get_water_level = tk.Button(
+        ws,
+        text='Lectura de carga ON',
+        padx=10,
+        pady=5,
+        command=toggle_get_water_level
+    )
+    btn_toggle_get_water_level.pack(expand=True)
+
+    btn_toggle_autofill = tk.Button(
+        ws,
+        text='Llenado automatico ',
+        padx=10,
+        pady=5,
+        command=toggle_autofill
+    )
+    btn_toggle_autofill.pack(expand=True)
+
+    def message():
+        if update_water_level:
+            get_levl_clicked()
+        ws.after(5000, message)
+
+    def setup():
+        ser.write(b"get atfl\n")
+        val = ser.readline().decode('utf-8').rstrip()
+        if "1" in val:
+            btn_toggle_autofill['text'] = "Llenado automatico " + "ON"
+        else:
+            btn_toggle_autofill['text'] = "Llenado automatico " + "OFF"
+        ser.write(b"get dept\n")
+        label_depth.config(text="Profundidad: " + ser.readline().decode('utf-8').rstrip() + "cm")
+        get_levl_clicked()
+        ws.after(5000, message)
+
+    # Serial
+    # __________________________________
     connected = False
     ser = None
     port = 'com3'
     for i in range(0, 20):
         try:
             port = 'com' + str(i)
-            ser = serial.Serial(port, 9600, timeout=5)  # ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+            ser = serial.Serial(port, 9600, timeout=10)  # ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
             ser.reset_input_buffer()
         except:
             continue
@@ -22,12 +116,7 @@ if __name__ == '__main__':
 
     if not connected:
         print("Could not connect serial")
-
-    while connected:
-        ser.write(b"get levl\n")
-        line = ser.readline().decode('utf-8').rstrip()
-        print(line)
-        time.sleep(1)
-        if cv.waitKey(1) & 0xff == ord('q'):
-            ser.close()
-            print("Connection closed")
+    else:
+        # GUI
+        ws.after(2000, setup)
+        ws.mainloop()
