@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 import serial
-
-
 import tkinter as tk
 
 
@@ -17,19 +15,10 @@ if __name__ == '__main__':
     ws.config(bg='#0EBAD1')
     ws.geometry('400x300')
 
-    label_water_level = tk.Label(
-        ws,
-        bg='#0EBAD1',
-        text='Cargando...',
-        font=18
-    )
+    label_water_level = tk.Label(ws, bg='#0EBAD1', text='Cargando...', font=18)
     label_water_level.pack(expand=True)
 
-    label_depth = tk.Label(
-        ws,
-        bg='#0EBAD1',
-        font=18
-    )
+    label_depth = tk.Label(ws, bg='#0EBAD1', font=18)
     label_depth.pack(expand=True)
 
     def get_levl_clicked():
@@ -77,22 +66,11 @@ if __name__ == '__main__':
             entry_depth.delete(0, 'end')
 
 
-    btn_toggle_get_water_level = tk.Button(
-        ws,
-        text='Lectura de Carga OFF',
-        padx=10,
-        pady=5,
-        command=toggle_get_water_level
-    )
+    btn_toggle_get_water_level = tk.Button(ws, text='Lectura de Carga OFF', padx=10, pady=5,
+                                           command=toggle_get_water_level)
     btn_toggle_get_water_level.pack(expand=True)
 
-    btn_toggle_autofill = tk.Button(
-        ws,
-        text='Llenado Automatico',
-        padx=10,
-        pady=5,
-        command=toggle_autofill
-    )
+    btn_toggle_autofill = tk.Button(ws, text='Llenado Automatico', padx=10, pady=5, command=toggle_autofill)
     btn_toggle_autofill.pack(expand=True)
 
     entry_depth = tk.Entry(ws)
@@ -141,7 +119,7 @@ if __name__ == '__main__':
     if not connected:
         print("Could not connect serial")
     else:
-        # GUI
+        # Activate GUI
         ws.after(2000, setup)
         ws.mainloop()
         ser.close()
