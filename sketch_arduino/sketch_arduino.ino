@@ -23,20 +23,23 @@ void setup() {
   pinMode(TRIG, OUTPUT);
   pinMode(ECHO, INPUT);
   pinMode(VALVE_PIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   EEPROM.get(0, data);  // recovers the previous state
+  if (data.autofill)
+    digitalWrite(LED_BUILTIN, HIGH);
+  else
+    digitalWrite(LED_BUILTIN, LOW);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   if (Serial.available() > 0) {
     String msg = Serial.readStringUntil('\n');  // Coms 
-    /*Serial.print("You sent me: ");
-    Serial.println(msg);*/
 
     String param = msg.substring(4,8);
     if (msg.substring(0,3) == "get") {
       if (param == "levl"){  // msg = "get levl"
-        Serial.print((((data.max_level + data.depth) - measure()) * 100 / data.depth));
+        Serial.print(minimum(100.0, maximum(((data.max_level + data.depth) - measure()) * 100 / data.depth, 0.0)));
         Serial.println("%");
       }
       else if (param == "stat") {  // msg = "get stat"
@@ -57,8 +60,10 @@ void loop() {
         String val = msg.substring(9,10);  // msg = "set atfl 1" : true | msg = "set atfl 0" : false
         if (val == "1"){
           data.autofill = true;
+          digitalWrite(LED_BUILTIN, HIGH);
         } else if (val == "0"){
           data.autofill = false;
+          digitalWrite(LED_BUILTIN, LOW);
         }
         EEPROM.put(0, data);
       }
@@ -67,6 +72,7 @@ void loop() {
         float newDepth = val.toFloat();
         if (newDepth != 0.0){
           data.depth = newDepth;
+          Serial.println(newDepth);
           EEPROM.put(0, data);
         }
       }
@@ -75,6 +81,7 @@ void loop() {
         float max_lvl = val.toFloat();
         if (max_lvl != 0.0){
           data.max_level = max_lvl;
+          Serial.println(max_lvl);
           EEPROM.put(0, data);
         }
       }
@@ -84,7 +91,7 @@ void loop() {
   }
 
   if (data.autofill) {  
-    float distance = measure();
+    float distance = getDistance();
     if (distance > data.max_level + data.depth / 2) {
       digitalWrite(VALVE_PIN, HIGH);
       if (!(data.filling)){
@@ -101,6 +108,14 @@ void loop() {
       }
     }
   }
+}
+
+float maximum(float a, float b) {
+  return (a>b) ? a : b;
+}
+
+float minimum(float a, float b) {
+  return (a<b) ? a : b;
 }
 
 float measure() {
