@@ -64,6 +64,8 @@ void loop() {
         } else if (val == "0"){
           data.autofill = false;
           digitalWrite(LED_BUILTIN, LOW);
+          data.filling = false;
+          digitalWrite(VALVE_PIN, LOW);
         }
         EEPROM.put(0, data);
       }
