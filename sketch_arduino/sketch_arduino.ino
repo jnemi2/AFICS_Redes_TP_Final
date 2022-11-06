@@ -39,7 +39,7 @@ void loop() {
     String param = msg.substring(4,8);
     if (msg.substring(0,3) == "get") {
       if (param == "levl"){  // msg = "get levl"
-        Serial.print(min(100, max(((data.max_level + data.depth) - measure()) * 100 / data.depth, 0)));
+        Serial.print(minimum(100.0, maximum(((data.max_level + data.depth) - measure()) * 100 / data.depth, 0.0)));
         Serial.println("%");
       }
       else if (param == "stat") {  // msg = "get stat"
@@ -72,6 +72,7 @@ void loop() {
         float newDepth = val.toFloat();
         if (newDepth != 0.0){
           data.depth = newDepth;
+          Serial.println(newDepth);
           EEPROM.put(0, data);
         }
       }
@@ -80,6 +81,7 @@ void loop() {
         float max_lvl = val.toFloat();
         if (max_lvl != 0.0){
           data.max_level = max_lvl;
+          Serial.println(max_lvl);
           EEPROM.put(0, data);
         }
       }
@@ -106,6 +108,14 @@ void loop() {
       }
     }
   }
+}
+
+float maximum(float a, float b) {
+  return (a>b) ? a : b;
+}
+
+float minimum(float a, float b) {
+  return (a<b) ? a : b;
 }
 
 float measure() {
